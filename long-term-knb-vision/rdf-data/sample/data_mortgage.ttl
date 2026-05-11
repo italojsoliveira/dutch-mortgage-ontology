@@ -1,0 +1,34 @@
+@prefix : <http://knb-hypotheek.com#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+### 1. The Mortgagee (Financiële Organisatie / Hypotheeknemer)
+:DeOranjeBank_Entity rdf:type :FinancileOrganisatiePartij, :Hypotheeknemer ;
+    :statutaireNaam "De Oranje Bank N.V." ;
+    :statutaireZetel "Amsterdam" ;
+    :bezoekadres "Amstelplein 1, 1096 BC Amsterdam" .
+
+### 2. The Mortgagor (Natuurlijk Persoon / Hypotheekgever)
+:JanJansen_Entity rdf:type :PersoonPartij, :Hypotheekgever ;
+    :volledigeNaam "Jan Peter Jansen" ;
+    :geboren "1985-05-15" ;
+    :geslacht "Man" ;
+    :persoonAdres "Kerkstraat 10, 3511 EB Utrecht" .
+
+### 3. The Collateral (Onderpand)
+:WoningUtrecht rdf:type :Onderpand ;
+    :soort "Woonhuis" ;
+    :onderpandAdres "Kerkstraat 10, 3511 EB Utrecht" .
+
+### 4. The Mortgage Relation (Hypotheek)
+:Hypotheek_2026_001 rdf:type :Hypotheek ;
+    :referentienummer "987654321"^^xsd:int ;
+    :referentiedatum "2026-03-09"^^xsd:date ;
+    :inschrijvingsbedrag "350000"^^xsd:int ;
+    :inschrijvingsbedragOpslag 122500 ;
+    :inschrijvingsbedragInclusiefOpslag 472500 ;
+
+    # Relationships (gufo:mediates)
+    :gegarandeerdDoor :WoningUtrecht ;
+    :omvat :DeOranjeBank_Entity ;
+    :omvat :JanJansen_Entity .

@@ -1,0 +1,313 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix : <http://knb-hypotheek.com#> .
+
+### ──────────────────────────────────────────────
+### 1. Hypotheek (Mortgage)
+### ──────────────────────────────────────────────
+:HypotheekShape a sh:NodeShape ;
+    sh:targetClass :Hypotheek ;
+
+    sh:property [
+        sh:path :gegarandeerdDoor ;
+        sh:minCount 1 ;
+        sh:class :Onderpand ;
+        sh:message "A Hypotheek must be guaranteed by at least one Onderpand (registergoed)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :omvat ;
+        sh:minCount 2 ;
+        sh:class :Partij ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A Hypotheek must involve at least two distinct Partij instances."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :omvat ;
+        sh:qualifiedValueShape [ sh:class :Hypotheekgever ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "A Hypotheek must include at least one Hypotheekgever (mortgagor)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :omvat ;
+        sh:qualifiedValueShape [ sh:class :Hypotheeknemer ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "A Hypotheek must include at least one Hypotheeknemer (mortgagee)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path [ sh:inversePath :isToegewezenAan ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class :Bedrag ;
+        sh:message "A Hypotheek must have exactly one Bedrag assigned to it."@en ;
+    ] ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "The Hypotheekgever and Hypotheeknemer must be distinct entities; a party cannot grant a mortgage to itself."@en ;
+        sh:prefixes [
+            sh:declare [ sh:prefix "" ; sh:namespace "http://knb-hypotheek.com#"^^xsd:anyURI ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :omvat ?gever .
+                $this :omvat ?nemer .
+                ?gever a :Hypotheekgever .
+                ?nemer a :Hypotheeknemer .
+                FILTER (?gever = ?nemer)
+            }
+        """ ;
+    ] ;
+
+    sh:property [
+        sh:path :referentienummer ;
+        sh:datatype xsd:int ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A Hypotheek must have exactly one referentienummer (xsd:int)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :referentiedatum ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A Hypotheek must have exactly one referentiedatum."@en ;
+    ] .
+
+### ──────────────────────────────────────────────
+### 2. Onderpand (Collateral)
+### ──────────────────────────────────────────────
+:OnderpandShape a sh:NodeShape ;
+    sh:targetClass :Onderpand ;
+
+    sh:property [
+        sh:path [ sh:inversePath :gegarandeerdDoor ] ;
+        sh:minCount 1 ;
+        sh:class :Hypotheek ;
+        sh:message "An Onderpand must be linked to at least one Hypotheek."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :soort ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "An Onderpand must have at least one soort (type)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :onderpandAdres ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "An Onderpand must have at least one onderpandAdres."@en ;
+    ] .
+
+### ──────────────────────────────────────────────
+### 3. Bedrag (Amount)
+### ──────────────────────────────────────────────
+:BedragShape a sh:NodeShape ;
+    sh:targetClass :Bedrag ;
+
+    sh:property [
+        sh:path :isToegewezenAan ;
+        sh:minCount 1 ;
+        sh:class :Hypotheek ;
+        sh:message "A Bedrag must be assigned to at least one Hypotheek."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :inschrijvingsbedrag ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:float ;
+        sh:message "A Bedrag must have exactly one inschrijvingsbedrag (xsd:float)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :inschrijvingsbedragOpslag ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:float ;
+    ] ;
+
+    sh:property [
+        sh:path :inschrijvingsbedragInclusiefOpslag ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:float ;
+    ] .
+
+### ──────────────────────────────────────────────
+### 4. Partij (Party)
+### ──────────────────────────────────────────────
+:PartijShape a sh:NodeShape ;
+    sh:targetClass :Partij ;
+
+    sh:property [
+        sh:path [ sh:inversePath :omvat ] ;
+        sh:minCount 1 ;
+        sh:class :Hypotheek ;
+        sh:message "A Partij must participate in at least one Hypotheek."@en ;
+    ] ;
+
+    # Partij ≡ Hypotheekgever ∪ Hypotheeknemer
+    sh:or (
+        [ sh:class :Hypotheekgever ]
+        [ sh:class :Hypotheeknemer ]
+    ) ;
+
+    # Partij ≡ PersoonPartij ∪ RechtspersoonPartij
+    sh:xone (
+        [ sh:class :PersoonPartij ]
+        [ sh:class :RechtspersoonPartij ]
+    ) .
+
+### ──────────────────────────────────────────────
+### 5. Hypotheekgever (Mortgagor)
+### ──────────────────────────────────────────────
+:HypotheekgeverShape a sh:NodeShape ;
+    sh:targetClass :Hypotheekgever ;
+    sh:class :Partij ;
+    sh:message "A Hypotheekgever must be a Partij."@en .
+
+### ──────────────────────────────────────────────
+### 6. Hypotheeknemer (Mortgagee)
+### ──────────────────────────────────────────────
+:HypotheeknmerShape a sh:NodeShape ;
+    sh:targetClass :Hypotheeknemer ;
+    sh:class :Partij ;
+    sh:message "A Hypotheeknemer must be a Partij."@en .
+
+### ──────────────────────────────────────────────
+### 7. PersoonPartij (Person Party)
+### ──────────────────────────────────────────────
+:PersoonPartijShape a sh:NodeShape ;
+    sh:targetClass :PersoonPartij ;
+    sh:class :WettelijkHandelingsbekwaamPersoon ;
+    sh:message "A PersoonPartij must be a WettelijkHandelingsbekwaamPersoon."@en .
+
+### ──────────────────────────────────────────────
+### 8. RechtspersoonPartij (Legal Entity Party)
+### ──────────────────────────────────────────────
+:RechtspersoonPartijShape a sh:NodeShape ;
+    sh:targetClass :RechtspersoonPartij ;
+    sh:class :Rechtspersoon ;
+    sh:message "A RechtspersoonPartij must be a Rechtspersoon."@en .
+
+### ──────────────────────────────────────────────
+### 9. Rechtssubject (Legal Subject)
+### ──────────────────────────────────────────────
+:RechtssubjectShape a sh:NodeShape ;
+    sh:targetClass :Rechtssubject ;
+    sh:xone (
+        [ sh:class :NatuurlijkPersoon ]
+        [ sh:class :Rechtspersoon ]
+    ) ;
+    sh:message "A Rechtssubject must be exactly one of NatuurlijkPersoon or Rechtspersoon."@en .
+
+### ──────────────────────────────────────────────
+### 10. NatuurlijkPersoon (Natural Person)
+### ──────────────────────────────────────────────
+:NatuurlijkPersoonShape a sh:NodeShape ;
+    sh:targetClass :NatuurlijkPersoon ;
+
+    sh:property [
+        sh:path :volledigeNaam ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A NatuurlijkPersoon must have a volledigeNaam."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :geboren ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A NatuurlijkPersoon must have a geboren (date of birth)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :geslacht ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A NatuurlijkPersoon must have a geslacht (gender)."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :persoonAdres ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A NatuurlijkPersoon must have a persoonAdres."@en ;
+    ] .
+
+### ──────────────────────────────────────────────
+### 11. WettelijkHandelingsbekwaamPersoon
+###     (Legally Competent Person)
+### ──────────────────────────────────────────────
+:WettelijkHandelingsbekwaamPersoonShape a sh:NodeShape ;
+    sh:targetClass :WettelijkHandelingsbekwaamPersoon ;
+    sh:class :NatuurlijkPersoon ;
+    sh:message "A WettelijkHandelingsbekwaamPersoon must be a NatuurlijkPersoon."@en .
+
+### ──────────────────────────────────────────────
+### 12. Rechtspersoon (Legal Entity)
+### ──────────────────────────────────────────────
+:RechtspersoonShape a sh:NodeShape ;
+    sh:targetClass :Rechtspersoon ;
+
+    sh:property [
+        sh:path :statutaireNaam ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A Rechtspersoon must have a statutaireNaam."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :statutaireZetel ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A Rechtspersoon must have a statutaireZetel."@en ;
+    ] ;
+
+    sh:property [
+        sh:path :bezoekadres ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A Rechtspersoon must have a bezoekadres."@en ;
+    ] ;
+
+    # Rechtspersoon ≡ Publiekrechtelijk ∪ Privaatrechtelijk ∪ Kerkgenootschap
+    sh:xone (
+        [ sh:class :PubliekrechtelijkeRechtsperson ]
+        [ sh:class :PrivaatrechtelijkeRechtsperson ]
+        [ sh:class :Kerkgenootschap ]
+    ) .
+
+### ──────────────────────────────────────────────
+### 13. PubliekrechtelijkeRechtsperson
+### ──────────────────────────────────────────────
+:PubliekrechtelijkeRechtspersonShape a sh:NodeShape ;
+    sh:targetClass :PubliekrechtelijkeRechtsperson ;
+    sh:xone (
+        [ sh:class :DeStaat ]
+        [ sh:class :Provincie ]
+        [ sh:class :Gemeente ]
+        [ sh:class :Waterschap ]
+    ) .
+
+### ──────────────────────────────────────────────
+### 14. PrivaatrechtelijkeRechtsperson
+### ──────────────────────────────────────────────
+:PrivaatrechtelijkeRechtspersonShape a sh:NodeShape ;
+    sh:targetClass :PrivaatrechtelijkeRechtsperson ;
+    sh:xone (
+        [ sh:class :Vereniging ]
+        [ sh:class :Coperatie ]
+        [ sh:class :Stichting ]
+        [ sh:class :NaamlozeVennootschap ]
+        [ sh:class :OnderlingeWaarborgmaatschappij ]
+        [ sh:class :BeslotenVennootschap ]
+    ) .

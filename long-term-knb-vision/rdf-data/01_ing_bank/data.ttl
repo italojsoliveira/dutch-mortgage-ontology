@@ -1,0 +1,32 @@
+@prefix : <http://knb-hypotheek.com#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+### 1. The Mortgagee (Financiële Organisatie / Hypotheeknemer)
+:INGBank_Entity rdf:type :FinancileOrganisatiePartij, :Hypotheeknemer ;
+    :statutaireNaam "ING Bank N.V." ;
+    :statutaireZetel "Amsterdam" ;
+    :bezoekadres "Bijlmerdreef 24, 1102 CT Amsterdam" .
+
+### 2. Hypotheekgever (Natuurlijk Persoon / Hypotheekgever)
+:LindaVanDeKrommenakker_Entity rdf:type :PersoonPartij, :Hypotheekgever ;
+    :volledigeNaam "Linda van de Krommenakker" ;
+    :geboren "1960-08-03"^^xsd:date ;
+    :geslacht "Vrouw" ;
+    :persoonAdres "Adelaarstraat 47bis, 7413 SB Deventer" .
+
+### 3. Onderpand (Woonhuis met berging en verder toebehoren)
+:WoonhuisArnhem rdf:type :Onderpand ;
+    :soort "Woonhuis met berging en verder toebehoren" ;
+    :onderpandAdres "Ella Fitzgerarldstraat 11 II, 6836 DA Arnhem" .
+
+### 4. The Mortgage Relation (Hypotheek)
+:Hypotheek_2023001007 rdf:type :Hypotheek ;
+    :referentienummer "2023001007"^^xsd:int ;
+    :referentiedatum "2023-10-01"^^xsd:date ;
+    :inschrijvingsbedrag "280000"^^xsd:int ;
+    :inschrijvingsbedragOpslag "168000"^^xsd:int ;
+    :inschrijvingsbedragInclusiefOpslag "448000"^^xsd:int ;
+    :gegarandeerdDoor :WoonhuisArnhem ;
+    :omvat :INGBank_Entity ;
+    :omvat :LindaVanDeKrommenakker_Entity .

@@ -1,0 +1,38 @@
+@prefix : <http://knb-hypotheek.com#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+### 1. Hypotheeknemer (Stichting Pensioenfonds ABP)
+:StichtingPensioenfondsABP_Entity rdf:type :Stichting, :PrivaatrechtelijkeRechtsperson,
+        :Rechtspersoon, :RechtspersoonPartij, :Hypotheeknemer, :Partij, :Rechtssubject ;
+    :statutaireNaam "Stichting Pensioenfonds ABP" ;
+    :statutaireZetel "Heerlen" ;
+    :bezoekadres "Oude Lindestraat 70, 6411 EJ Heerlen" .
+
+### 2. Hypotheekgever (Melusina DuLin)
+:MelusinaDuLin_Entity rdf:type :NatuurlijkPersoon, :WettelijkHandelingsbekwaamPersoon,
+        :PersoonPartij, :Hypotheekgever, :Partij, :Rechtssubject ;
+    :volledigeNaam "Melusina DuLin" ;
+    :geboren "1948-11-03, Bonde" ;
+    :geslacht "Vrouw" ;
+    :persoonAdres "Weiland 125, 6001 EJ Oeken" .
+
+### 3. Onderpand (Woonhuis te Oeken)
+:WoonhuisOeken rdf:type :Onderpand ;
+    :soort "Woonhuis met ondergrond, tuin en aanlegsteiger" ;
+    :onderpandAdres "Weiland 127, 6201 OJ Oeken" .
+
+### 4. Bedrag
+:Bedrag_40639 rdf:type :Bedrag ;
+    :isToegewezenAan :Hypotheek_40639 ;
+    :inschrijvingsbedrag "150000.00"^^xsd:float ;
+    :inschrijvingsbedragOpslag "60000.00"^^xsd:float ;
+    :inschrijvingsbedragInclusiefOpslag "210000.00"^^xsd:float .
+
+### 5. Hypotheek
+:Hypotheek_40639 rdf:type :Hypotheek ;
+    :referentienummer "4063901"^^xsd:int ;
+    :referentiedatum "2019-07-29"^^xsd:date ;
+    :gegarandeerdDoor :WoonhuisOeken ;
+    :omvat :StichtingPensioenfondsABP_Entity ;
+    :omvat :MelusinaDuLin_Entity .

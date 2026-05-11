@@ -1,0 +1,82 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://knb-hypotheek.com#> .
+
+### 1. Mortgage Shape (Hypotheek)
+:HypotheekShape rdf:type sh:NodeShape ;
+    sh:targetClass :Hypotheek ;
+    
+    # 1. Collateral Constraint: At least one (sh:minCount 1)
+    sh:property [
+        sh:path :gegarandeerdDoor ;
+        sh:minCount 1 ;
+        sh:class :Onderpand ;
+        sh:message "A mortgage must be guaranteed by at least one collateral (registergoed)."@en ;
+    ] ;
+
+    # 2. Minimum Party Constraint: At least two distinct parties
+    sh:property [
+        sh:path :omvat ;
+        sh:minCount 2 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A mortgage must involve at least two distinct IRIs as parties."@en ;
+    ] ;
+
+    # 3. Role Validation: Must have at least one Mortgagor
+    sh:property [
+        sh:path :omvat ;
+        sh:qualifiedValueShape [ sh:class :Hypotheekgever ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "The mortgage must include at least one Hypotheekgever."@en ;
+    ] ;
+
+    # 4. Role Validation: Must have at least one Mortgagee
+    sh:property [
+        sh:path :omvat ;
+        sh:qualifiedValueShape [ sh:class :Hypotheeknemer ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "The mortgage must include at least one Hypotheeknemer."@en ;
+    ] ;
+
+    # 5. Logical Integrity: Gever and Nemer cannot be the same entity
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "The Hypotheekgever and Hypotheeknemer must be distinct entities; a party cannot grant a mortgage to itself."@en ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :omvat ?gever .
+                $this :omvat ?nemer .
+                ?gever a :Hypotheekgever .
+                ?nemer a :Hypotheeknemer .
+                FILTER (?gever = ?nemer)
+            }
+        """ ;
+    ] ;
+
+    # 6. Data Property Requirements
+    sh:property [ sh:path :referentienummer ; sh:datatype xsd:int ; sh:minCount 1 ] ;
+    sh:property [ sh:path :referentiedatum ; sh:datatype xsd:date ; sh:minCount 1 ] ;
+    sh:property [ sh:path :inschrijvingsbedrag ; sh:datatype xsd:int ; sh:minCount 1 ] .
+
+### 2. Natural Person Shape
+:NatuurlijkPersoonShape rdf:type sh:NodeShape ;
+    sh:targetClass :NatuurlijkPersoon ;
+    sh:property [ sh:path :volledigeNaam ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path :geboren ; sh:minCount 1 ] ;
+    sh:property [ sh:path :geslacht ; sh:minCount 1 ] ;
+    sh:property [ sh:path :persoonAdres ; sh:minCount 1 ] .
+
+### 3. Legal Entity Shape (Rechtspersoon)
+:RechtspersoonShape rdf:type sh:NodeShape ;
+    sh:targetClass :Rechtspersoon ;
+    sh:property [ sh:path :statutaireNaam ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path :statutaireZetel ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path :bezoekadres ; sh:minCount 1 ; sh:datatype xsd:string ] .
+
+### 4. Collateral Shape (Onderpand)
+:OnderpandShape rdf:type sh:NodeShape ;
+    sh:targetClass :Onderpand ;
+    sh:property [ sh:path :soort ; sh:minCount 1 ] ;
+    sh:property [ sh:path :onderpandAdres ; sh:minCount 1 ] .

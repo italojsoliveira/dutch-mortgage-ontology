@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNB Hypotheek – Mortgage Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/@ulb-darmstadt/shacl-form/dist/bundle.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 .25rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+
+        header p {
+            margin: 0;
+            opacity: .75;
+            font-size: .95rem;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        .form-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.04);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        shacl-form {
+            --shacl-font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            --shacl-font-size: 14px;
+            --shacl-text-color: #1a1a2e;
+            --shacl-muted-color: #555;
+            --shacl-border-color: #d1d5db;
+            --shacl-bg: #fff;
+            --shacl-row-alt-bg: #f8fafc;
+            --shacl-error-color: #dc2626;
+            --shacl-label-width: 14em;
+        }
+
+        shacl-form::part(form) { padding: 0; }
+        shacl-form::part(group-title) { font-size: 1.1rem; color: #16213e; }
+        shacl-form::part(label) { font-weight: 600; }
+        shacl-form::part(submit-button) {
+            background: #16213e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: .625rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        shacl-form::part(submit-button):hover { background: #1a1a2e; }
+        shacl-form::part(button) { border-radius: 6px; }
+        shacl-form::part(primary) { font-weight: 600; }
+
+        .output-section {
+            margin-top: 2rem;
+        }
+
+        .output-section h2 {
+            font-size: 1.15rem;
+            margin: 0 0 .75rem;
+            color: #16213e;
+        }
+
+        .output-section pre {
+            background: #1a1a2e;
+            color: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: .85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem 1rem;
+            border-radius: 8px;
+            font-size: .875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-bar.valid { background: #dcfce7; color: #166534; }
+        .status-bar.invalid { background: #fef2f2; color: #991b1b; }
+        .status-bar.idle { background: #f1f5f9; color: #475569; }
+
+        .hidden { display: none; }
+
+        .actions-section {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: #16213e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: .625rem 1.5rem;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+        }
+
+        .btn-export:hover { background: #1a1a2e; }
+        .btn-export:active { transform: scale(.97); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>KNB Hypotheek Form</h1>
+        <p>Dutch mortgage registration — powered by SHACL shapes</p>
+    </header>
+
+    <main>
+        <div id="status" class="status-bar idle">Fill in the form below to generate RDF data.</div>
+
+        <div class="form-card">
+            <shacl-form
+                id="mortgage-form"
+                data-shapes-url="./mortgage-form-shapes.ttl"
+                data-shape-subject="http://knb-hypotheek.com#HypotheekShape"
+                data-values-namespace="http://knb-hypotheek.com#"
+                data-collapse="open"
+                data-submit-button="Submit Mortgage"
+                data-loading="Loading mortgage form…"
+                data-show-root-shape-label
+                data-dense="false"
+            ></shacl-form>
+        </div>
+
+        <div id="output-section" class="output-section hidden">
+            <h2>Generated RDF (Turtle)</h2>
+            <pre id="rdf-output"></pre>
+        </div>
+
+        <div id="actions-section" class="actions-section hidden">
+            <button id="export-odt-btn" class="btn-export" type="button">
+                Export to .odt
+            </button>
+        </div>
+    </main>
+
+    <script type="module">
+        const form = document.getElementById('mortgage-form')
+        const status = document.getElementById('status')
+        const outputSection = document.getElementById('output-section')
+        const rdfOutput = document.getElementById('rdf-output')
+        const exportBtn = document.getElementById('export-odt-btn')
+        const actionsSection = document.getElementById('actions-section')
+
+        form.addEventListener('change', (event) => {
+            if (event.detail?.valid) {
+                status.className = 'status-bar valid'
+                status.textContent = 'Form is valid — ready to submit.'
+            } else {
+                status.className = 'status-bar invalid'
+                status.textContent = 'Form has validation errors. Please correct the highlighted fields.'
+            }
+        })
+
+        form.addEventListener('submit', (event) => {
+            const turtle = form.serialize()
+            rdfOutput.textContent = turtle
+            outputSection.classList.remove('hidden')
+            actionsSection.classList.remove('hidden')
+            outputSection.scrollIntoView({ behavior: 'smooth' })
+        })
+
+        exportBtn.addEventListener('click', () => exportToODT())
+
+        /* ── ODT export via toRDF() + RDFa ────────────────── */
+
+        const KNB = 'http://knb-hypotheek.com#'
+        const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+
+        function exportToODT() {
+            const rdfStore = form.toRDF()
+            const quads = rdfStore.getQuads(null, null, null, null)
+
+            const bySubject = {}
+            for (const q of quads) {
+                ;(bySubject[q.subject.value] ??= []).push(q)
+            }
+
+            let hypSubject = null
+            for (const [s, qs] of Object.entries(bySubject)) {
+                if (qs.some(q => q.predicate.value === RDF_TYPE && q.object.value === KNB + 'Hypotheek')) {
+                    hypSubject = s; break
+                }
+            }
+            if (!hypSubject) { alert('No mortgage data found.'); return }
+
+            const val = (s, p) => (bySubject[s] || [])
+                .filter(q => q.predicate.value === p)
+                .map(q => q.object.value)
+            const objRefs = (s, p) => (bySubject[s] || [])
+                .filter(q => q.predicate.value === p && q.object.termType !== 'Literal')
+                .map(q => q.object.value)
+            const typeOf = s => {
+                const t = (bySubject[s] || []).find(q => q.predicate.value === RDF_TYPE)
+                return t ? t.object.value : ''
+            }
+
+            const esc = s => String(s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+            let body = ''
+            const heading = (lvl, text) => {
+                body += `<text:h text:outline-level="${lvl}">${esc(text)}</text:h>\n`
+            }
+            const rdfa = (about, property, label, value) => {
+                body += `<text:p text:style-name="Standard"`
+                body += ` xhtml:about="${esc(about)}" xhtml:property="${esc(property)}">`
+                body += `<text:span text:style-name="Bold">${esc(label)}:</text:span> ${esc(value)}`
+                body += `</text:p>\n`
+            }
+            const spacer = () => { body += `<text:p text:style-name="Standard"/>\n` }
+
+            const refNum  = val(hypSubject, KNB + 'referentienummer')[0] || ''
+            const refDate = val(hypSubject, KNB + 'referentiedatum')[0] || ''
+
+            heading(1, 'KNB Hypotheek \u2014 Mortgage Document')
+            spacer()
+
+            heading(2, 'Mortgage Details')
+            if (refNum)  rdfa(hypSubject, KNB + 'referentienummer', 'Reference Number', refNum)
+            if (refDate) rdfa(hypSubject, KNB + 'referentiedatum', 'Reference Date', refDate)
+            spacer()
+
+            const onderpanden = objRefs(hypSubject, KNB + 'gegarandeerdDoor')
+            if (onderpanden.length) {
+                heading(2, 'Collateral (Onderpand)')
+                for (const ond of onderpanden) {
+                    const soort = val(ond, KNB + 'soort')[0]
+                    const adres = val(ond, KNB + 'onderpandAdres')[0]
+                    if (soort) rdfa(ond, KNB + 'soort', 'Type', soort)
+                    if (adres) rdfa(ond, KNB + 'onderpandAdres', 'Address', adres)
+                }
+                spacer()
+            }
+
+            function addParty(subj) {
+                const type = typeOf(subj)
+                const props = type === KNB + 'NatuurlijkPersoon'
+                    ? [['volledigeNaam','Full Name'],['geboren','Date of Birth'],['geslacht','Gender'],['persoonAdres','Address']]
+                    : [['statutaireNaam','Statutory Name'],['statutaireZetel','Statutory Seat'],['bezoekadres','Visiting Address'],['rechtsvorm','Legal Form']]
+                for (const [prop, label] of props) {
+                    const v = val(subj, KNB + prop)[0]
+                    if (v) rdfa(subj, KNB + prop, label, v)
+                }
+            }
+
+            const gevers = objRefs(hypSubject, KNB + 'hypotheekgever')
+            const nemers = objRefs(hypSubject, KNB + 'hypotheeknemer')
+            if (gevers.length || nemers.length) {
+                heading(2, 'Parties (Partijen)')
+                for (const g of gevers) { heading(3, 'Mortgagor (Hypotheekgever)'); addParty(g) }
+                for (const n of nemers) { heading(3, 'Mortgagee (Hypotheeknemer)'); addParty(n) }
+                spacer()
+            }
+
+            const bedragen = objRefs(hypSubject, KNB + 'bedrag')
+            if (bedragen.length) {
+                heading(2, 'Amount (Bedrag)')
+                for (const b of bedragen) {
+                    for (const [prop, label] of [
+                        ['inschrijvingsbedrag','Registration Amount'],
+                        ['inschrijvingsbedragOpslag','Surcharge'],
+                        ['inschrijvingsbedragInclusiefOpslag','Total Including Surcharge']
+                    ]) {
+                        const v = val(b, KNB + prop)[0]
+                        if (v) rdfa(b, KNB + prop, label, v)
+                    }
+                }
+            }
+
+            const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    office:version="1.2">
+  <office:automatic-styles>
+    <style:style style:name="Bold" style:family="text">
+      <style:text-properties fo:font-weight="bold"/>
+    </style:style>
+  </office:automatic-styles>
+  <office:body>
+    <office:text>
+${body}
+    </office:text>
+  </office:body>
+</office:document-content>`
+
+            const stylesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+    office:version="1.2">
+  <office:styles>
+    <style:default-style style:family="paragraph">
+      <style:text-properties fo:font-family="Liberation Sans" fo:font-size="11pt"/>
+    </style:default-style>
+  </office:styles>
+</office:document-styles>`
+
+            const metaXml = `<?xml version="1.0" encoding="UTF-8"?>
+<office:document-meta
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    office:version="1.2">
+  <office:meta>
+    <dc:title>KNB Hypotheek</dc:title>
+  </office:meta>
+</office:document-meta>`
+
+            const manifestXml = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2">
+  <manifest:file-entry manifest:full-path="/" manifest:version="1.2" manifest:media-type="application/vnd.oasis.opendocument.text"/>
+  <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>
+  <manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml"/>
+  <manifest:file-entry manifest:full-path="meta.xml" manifest:media-type="text/xml"/>
+</manifest:manifest>`
+
+            const zip = new JSZip()
+            zip.file('mimetype', 'application/vnd.oasis.opendocument.text', { compression: 'STORE' })
+            zip.file('META-INF/manifest.xml', manifestXml)
+            zip.file('content.xml', contentXml)
+            zip.file('styles.xml', stylesXml)
+            zip.file('meta.xml', metaXml)
+
+            zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.oasis.opendocument.text' })
+                .then(blob => {
+                    const fname = refNum ? `hypotheek-${refNum}.odt` : 'hypotheek.odt'
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = fname
+                    document.body.appendChild(a)
+                    a.click()
+                    document.body.removeChild(a)
+                    URL.revokeObjectURL(url)
+                })
+        }
+    </script>
+</body>
+</html>

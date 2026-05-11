@@ -1,0 +1,55 @@
+@prefix : <http://experiment.com#>.
+@prefix gufo: <http://purl.org/nemo/gufo#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+<http://experiment.com> rdf:type owl:Ontology;
+    owl:imports gufo:.
+:Address rdf:type owl:Class, gufo:AbstractIndividualType, owl:NamedIndividual;
+    rdfs:subClassOf gufo:QualityValue;
+    rdfs:label "Address"@en.
+:Person rdf:type owl:Class, gufo:Kind, owl:NamedIndividual;
+    rdfs:subClassOf gufo:FunctionalComplex;
+    rdfs:label "Person"@en.
+:Age rdf:type owl:Class, gufo:Kind, owl:NamedIndividual;
+    rdfs:subClassOf gufo:Quality;
+    rdfs:label "Age"@en.
+:address rdfs:domain :Person;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "address"@en.
+:years rdfs:domain :Age;
+    rdfs:range xsd:float;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "years"@en.
+:street rdfs:domain :Address;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasValueComponent;
+    rdfs:label "street"@en.
+:city rdfs:domain :Address;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasValueComponent;
+    rdfs:label "city"@en.
+:personAge rdf:type owl:ObjectProperty;
+    rdfs:domain :Age;
+    rdfs:range :Person;
+    rdfs:label "personAge"@en;
+    rdfs:subPropertyOf gufo:inheresIn.
+:Person rdfs:subClassOf [
+  rdf:type owl:Restriction;
+  owl:onProperty [ owl:inverseOf :personAge ];
+  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onClass :Age
+].
+:Age rdfs:subClassOf [
+  rdf:type owl:Restriction;
+  owl:onProperty :personAge;
+  owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onClass :Person
+].
+

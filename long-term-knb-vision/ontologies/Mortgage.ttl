@@ -1,0 +1,165 @@
+@prefix : <http://knb-hypotheek.com#>.
+@prefix gufo: <http://purl.org/nemo/gufo#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+<http://knb-hypotheek.com> rdf:type owl:Ontology;
+    owl:imports gufo:.
+:Hypotheek rdf:type owl:Class, gufo:Kind, owl:NamedIndividual;
+    rdfs:subClassOf gufo:Relator;
+    rdfs:label "Hypotheek"@en;
+    rdfs:comment "Volgens het Nederlandse recht (Artikel 3:227 van het Burgerlijk Wetboek) is een hypotheek een beperkt zakelijk zekerheidsrecht dat wordt gevestigd op een registergoed—zoals een huis of grond—ter waarborging van de terugbetaling van een schuld. Het dient als het wettelijke onderpand voor de lener, waarbij de bank het \"recht van parate executie\" verkrijgt; dit geeft hen de bevoegdheid om bij wanbetaling het pand zonder tussenkomst van de rechter executoriaal te verkopen om de schuld te innen. Omdat het een \"zakelijk recht\" is dat aan het object zelf verbonden is en niet aan de persoon, blijft dit recht op de eigendomstitel rusten totdat de schuld is voldaan en de notaris de inschrijving officieel uit de openbare registers heeft doorgehaald."@en.
+:Onderpand rdf:type owl:Class, gufo:RoleMixin, owl:NamedIndividual;
+    rdfs:subClassOf gufo:FunctionalComplex;
+    rdfs:label "Onderpand"@en;
+    rdfs:comment "In de context van Nederlandse hypotheken verwijst onderpand naar het specifieke registergoed, zoals een huis of appartement, dat dient als fysieke zekerheid voor een lening. Volgens het Nederlandse recht biedt de waarde van het onderpand de geldverstrekker de garantie dat de schuld kan worden verhaald; als de lener niet aan de betalingsverplichtingen voldoet, oefent de bank haar hypotheekrecht uit om dit eigendom te verkopen — vaak via een executieverkoop of veiling — om het openstaande saldo te vereffenen. Omdat de lening wordt gedekt door dit tastbare bezit, is het risico voor de bank lager, wat doorgaans resulteert in gunstigere rentetarieven voor de lener in vergelijking met leningen zonder onderpand."@en.
+:Partij rdf:type owl:Class, gufo:RoleMixin, owl:NamedIndividual;
+    rdfs:subClassOf gufo:FunctionalComplex;
+    rdfs:label "Partij"@en;
+    rdfs:comment "De partijen die bij een hypotheek betrokken zijn als hypotheekgevers of hypotheeknemers."@en.
+:NatuurlijkPersoon rdf:type owl:Class, gufo:Kind, owl:NamedIndividual;
+    rdfs:subClassOf gufo:FunctionalComplex;
+    rdfs:label "Natuurlijk Persoon"@en;
+    rdfs:comment "Een natuurlijk persoon is een mens die door de wet wordt erkend als een subject van rechten en plichten."@en.
+:FinancileOrganisatie rdf:type owl:Class, gufo:Kind, owl:NamedIndividual;
+    rdfs:label "Financiële Organisatie"@en;
+    rdfs:comment "Een financiële instelling in Nederland is een organisatie, zoals een bank, verzekeraar of pensioenfonds, die zich professioneel bezighoudt met het verlenen van financiële diensten. Deze instanties opereren meestal als een rechtspersoon (zoals een B.V. of N.V.) en staan onder streng toezicht van De Nederlandsche Bank (DNB) en de Autoriteit Financiële Markten (AFM) om de stabiliteit van het financiële stelsel en de bescherming van consumenten te waarborgen."@en.
+:Hypotheekgever rdf:type owl:Class, gufo:RoleMixin, owl:NamedIndividual;
+    rdfs:label "Hypotheekgever"@en;
+    rdfs:comment "De lener die het recht op hypotheek geeft aan de bank. Als woningeigenaar verleen je de bank de zekerheid dat zij het huis mogen verkopen als je de lening niet terugbetaalt."@en.
+:Hypotheeknemer rdf:type owl:Class, gufo:RoleMixin, owl:NamedIndividual;
+    rdfs:label "Hypotheeknemer"@en;
+    rdfs:comment "De geldverstrekker (de bank) die het recht op hypotheek neemt (aanvaardt). Zij krijgen hiermee het wettelijke onderpand als waarborg voor de verstrekte lening."@en.
+:PersoonPartij rdf:type owl:Class, gufo:Role, owl:NamedIndividual;
+    rdfs:label "Persoon Partij"@en;
+    rdfs:comment "Een handelingsbekwame natuurlijke persoon die betrokken is bij een hypotheek, meestal als hypotheekgever."@en.
+:FinancileOrganisatiePartij rdf:type owl:Class, gufo:Role, owl:NamedIndividual;
+    rdfs:label "Financiële Organisatie Partij"@en;
+    rdfs:comment "Een financiële instelling die bij een hypotheek betrokken is, bijna altijd als hypotheeknemer."@en.
+:WettelijkHandelingsbekwaamPersoon rdf:type owl:Class, gufo:Role, owl:NamedIndividual;
+    rdfs:label "Wettelijk Handelingsbekwaam Persoon"@en;
+    rdfs:comment "Een wettelijk handelingsbekwaam persoon is in Nederland iedereen van 18 jaar of ouder die niet onder curatele is gesteld, conform artikel 3:32 BW. Deze persoon mag zelfstandig rechtshandelingen verrichten, zoals contracten tekenen, kopen, trouwen of erven, zonder toestemming van een vertegenwoordiger."@en.
+:Rechtspersoon rdf:type owl:Class, gufo:Category, owl:NamedIndividual;
+    rdfs:subClassOf gufo:FunctionalComplex;
+    rdfs:label "Rechtspersoon"@en;
+    rdfs:comment "Een rechtspersoon is een niet-menselijke organisatie, zoals een B.V., N.V. of een stichting, die door het Nederlandse recht wordt erkend als een entiteit met een eigen juridische identiteit die losstaat van haar eigenaren of bestuurders."@en.
+:Hypotheekgever rdfs:subClassOf :Partij.
+:Hypotheeknemer rdfs:subClassOf :Partij.
+:FinancileOrganisatiePartij rdfs:subClassOf :FinancileOrganisatie.
+:PersoonPartij rdfs:subClassOf :Partij.
+:FinancileOrganisatiePartij rdfs:subClassOf :Partij.
+:WettelijkHandelingsbekwaamPersoon rdfs:subClassOf :NatuurlijkPersoon.
+:PersoonPartij rdfs:subClassOf :WettelijkHandelingsbekwaamPersoon.
+:FinancileOrganisatie rdfs:subClassOf :Rechtspersoon.
+:Partij owl:equivalentClass [
+  rdf:type owl:Class;
+  owl:unionOf (:Hypotheeknemer :Hypotheekgever)
+], [
+  rdf:type owl:Class;
+  owl:unionOf (:FinancileOrganisatiePartij :PersoonPartij)
+].
+:referentienummer rdfs:domain :Hypotheek;
+    rdfs:range xsd:int;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "referentienummer"@en.
+:referentiedatum rdfs:domain :Hypotheek;
+    rdfs:range xsd:date;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "referentiedatum"@en.
+:inschrijvingsbedrag rdfs:domain :Hypotheek;
+    rdfs:range xsd:int;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "inschrijvingsbedrag"@en.
+:inschrijvingsbedragOpslag rdfs:domain :Hypotheek;
+    rdfs:range xsd:int;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "inschrijvingsbedragOpslag"@en.
+:inschrijvingsbedragInclusiefOpslag rdfs:domain :Hypotheek;
+    rdfs:range xsd:int;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "inschrijvingsbedragInclusiefOpslag"@en.
+:soort rdfs:domain :Onderpand;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "soort"@en.
+:onderpandAdres rdfs:domain :Onderpand;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "onderpandAdres"@en.
+:volledigeNaam rdfs:domain :NatuurlijkPersoon;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "volledigeNaam"@en.
+:geboren rdfs:domain :NatuurlijkPersoon;
+    rdfs:range xsd:date;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "geboren"@en.
+:geslacht rdfs:domain :NatuurlijkPersoon;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "geslacht"@en.
+:persoonAdres rdfs:domain :NatuurlijkPersoon;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "persoonAdres"@en.
+:statutaireNaam rdfs:domain :Rechtspersoon;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "statutaireNaam"@en.
+:statutaireZetel rdfs:domain :Rechtspersoon;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "statutaireZetel"@en;
+    rdfs:comment "Een statutaire zetel is de specifieke gemeente waar een rechtspersoon volgens de officiële statuten statutair gevestigd is."@en.
+:bezoekadres rdfs:domain :Rechtspersoon;
+    rdfs:range xsd:string;
+    rdf:type owl:DatatypeProperty;
+    rdfs:subPropertyOf gufo:hasQualityValue;
+    rdfs:label "bezoekadres"@en;
+    rdfs:comment "De feitelijke locatie (straat, huisnummer, woonplaats) waar de entiteit haar bedrijfsactiviteiten uitvoert en officiële post kan ontvangen."@en.
+:gegarandeerdDoor rdf:type owl:ObjectProperty;
+    rdfs:domain :Hypotheek;
+    rdfs:range :Onderpand;
+    rdfs:label "gegarandeerd door"@en;
+    rdfs:subPropertyOf gufo:mediates.
+:omvat rdf:type owl:ObjectProperty;
+    rdfs:domain :Hypotheek;
+    rdfs:range :Partij;
+    rdfs:label "omvat"@en;
+    rdfs:subPropertyOf gufo:mediates.
+:Onderpand rdfs:subClassOf [
+  rdf:type owl:Restriction;
+  owl:onProperty [ owl:inverseOf :gegarandeerdDoor ];
+  owl:someValuesFrom :Hypotheek
+].
+:Hypotheek rdfs:subClassOf [
+  rdf:type owl:Restriction;
+  owl:onProperty :gegarandeerdDoor;
+  owl:someValuesFrom :Onderpand
+].
+:Partij rdfs:subClassOf [
+  rdf:type owl:Restriction;
+  owl:onProperty [ owl:inverseOf :omvat ];
+  owl:someValuesFrom :Hypotheek
+].
+:Hypotheek rdfs:subClassOf [
+  rdf:type owl:Restriction;
+  owl:onProperty :omvat;
+  owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger;
+  owl:onClass :Partij
+].

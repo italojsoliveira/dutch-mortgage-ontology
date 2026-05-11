@@ -1,0 +1,255 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix :     <http://knb-hypotheek.com#> .
+
+### Property Groups
+:MortgageDetailsGroup a sh:PropertyGroup ;
+    rdfs:label "Mortgage Details" ;
+    sh:order 1 .
+
+:CollateralGroup a sh:PropertyGroup ;
+    rdfs:label "Collateral (Onderpand)" ;
+    sh:order 2 .
+
+:PartiesGroup a sh:PropertyGroup ;
+    rdfs:label "Parties (Partijen)" ;
+    sh:order 3 .
+
+:AmountGroup a sh:PropertyGroup ;
+    rdfs:label "Amount (Bedrag)" ;
+    sh:order 4 .
+
+### ──────────────────────────────────────────────
+### Main shape: Hypotheek (Mortgage)
+### ──────────────────────────────────────────────
+:HypotheekShape a sh:NodeShape, rdfs:Class ;
+    sh:targetClass :Hypotheek ;
+    rdfs:label "Hypotheek (Mortgage)" ;
+
+    sh:property [
+        sh:path :referentienummer ;
+        sh:name "Reference Number (Referentienummer)" ;
+        sh:description "Unique reference number for this mortgage" ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:group :MortgageDetailsGroup ;
+        sh:order 1 ;
+    ] ;
+
+    sh:property [
+        sh:path :referentiedatum ;
+        sh:name "Reference Date (Referentiedatum)" ;
+        sh:description "Reference date for this mortgage" ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:group :MortgageDetailsGroup ;
+        sh:order 2 ;
+    ] ;
+
+    sh:property [
+        sh:path :gegarandeerdDoor ;
+        sh:name "Collateral (Onderpand)" ;
+        sh:description "The registered property securing this mortgage" ;
+        sh:node :OnderpandShape ;
+        sh:minCount 1 ;
+        sh:group :CollateralGroup ;
+        sh:order 3 ;
+    ] ;
+
+    sh:property [
+        sh:path :hypotheekgever ;
+        sh:name "Mortgagor (Hypotheekgever)" ;
+        sh:description "The party granting the mortgage" ;
+        sh:minCount 1 ;
+        sh:or (
+            [ sh:node :NatuurlijkPersoonShape ; rdfs:label "Natural Person (Natuurlijk Persoon)" ]
+            [ sh:node :RechtspersoonShape ; rdfs:label "Legal Entity (Rechtspersoon)" ]
+        ) ;
+        sh:group :PartiesGroup ;
+        sh:order 4 ;
+    ] ;
+
+    sh:property [
+        sh:path :hypotheeknemer ;
+        sh:name "Mortgagee (Hypotheeknemer)" ;
+        sh:description "The party receiving the mortgage" ;
+        sh:minCount 1 ;
+        sh:or (
+            [ sh:node :NatuurlijkPersoonShape ; rdfs:label "Natural Person (Natuurlijk Persoon)" ]
+            [ sh:node :RechtspersoonShape ; rdfs:label "Legal Entity (Rechtspersoon)" ]
+        ) ;
+        sh:group :PartiesGroup ;
+        sh:order 5 ;
+    ] ;
+
+    sh:property [
+        sh:path :bedrag ;
+        sh:name "Amount (Bedrag)" ;
+        sh:description "The monetary amount details of this mortgage" ;
+        sh:node :BedragShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:group :AmountGroup ;
+        sh:order 6 ;
+    ] .
+
+### ──────────────────────────────────────────────
+### Onderpand (Collateral)
+### ──────────────────────────────────────────────
+:OnderpandShape a sh:NodeShape, rdfs:Class ;
+    sh:targetClass :Onderpand ;
+    rdfs:label "Collateral (Onderpand)" ;
+
+    sh:property [
+        sh:path :soort ;
+        sh:name "Type (Soort)" ;
+        sh:description "Type of the registered property" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 1 ;
+    ] ;
+
+    sh:property [
+        sh:path :onderpandAdres ;
+        sh:name "Address (Adres)" ;
+        sh:description "Address of the collateral property" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 2 ;
+    ] .
+
+### ──────────────────────────────────────────────
+### Bedrag (Amount)
+### ──────────────────────────────────────────────
+:BedragShape a sh:NodeShape, rdfs:Class ;
+    sh:targetClass :Bedrag ;
+    rdfs:label "Amount (Bedrag)" ;
+
+    sh:property [
+        sh:path :inschrijvingsbedrag ;
+        sh:name "Registration Amount (Inschrijvingsbedrag)" ;
+        sh:description "The principal registration amount" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:order 1 ;
+    ] ;
+
+    sh:property [
+        sh:path :inschrijvingsbedragOpslag ;
+        sh:name "Surcharge (Opslag)" ;
+        sh:description "Additional surcharge amount" ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:order 2 ;
+    ] ;
+
+    sh:property [
+        sh:path :inschrijvingsbedragInclusiefOpslag ;
+        sh:name "Total Including Surcharge" ;
+        sh:description "Total amount including the surcharge" ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:order 3 ;
+    ] .
+
+### ──────────────────────────────────────────────
+### NatuurlijkPersoon (Natural Person)
+### ──────────────────────────────────────────────
+:NatuurlijkPersoonShape a sh:NodeShape, rdfs:Class ;
+    sh:targetClass :NatuurlijkPersoon ;
+    rdfs:label "Natural Person (Natuurlijk Persoon)" ;
+
+    sh:property [
+        sh:path :volledigeNaam ;
+        sh:name "Full Name (Volledige Naam)" ;
+        sh:description "Full legal name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 1 ;
+    ] ;
+
+    sh:property [
+        sh:path :geboren ;
+        sh:name "Date of Birth (Geboren)" ;
+        sh:description "Date of birth" ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:order 2 ;
+    ] ;
+
+    sh:property [
+        sh:path :geslacht ;
+        sh:name "Gender (Geslacht)" ;
+        sh:description "Gender" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Male" "Female" "Other" ) ;
+        sh:order 3 ;
+    ] ;
+
+    sh:property [
+        sh:path :persoonAdres ;
+        sh:name "Address (Persoon Adres)" ;
+        sh:description "Personal residential address" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 4 ;
+    ] .
+
+### ──────────────────────────────────────────────
+### Rechtspersoon (Legal Entity)
+### ──────────────────────────────────────────────
+:RechtspersoonShape a sh:NodeShape, rdfs:Class ;
+    sh:targetClass :Rechtspersoon ;
+    rdfs:label "Legal Entity (Rechtspersoon)" ;
+
+    sh:property [
+        sh:path :statutaireNaam ;
+        sh:name "Statutory Name (Statutaire Naam)" ;
+        sh:description "Official statutory name of the legal entity" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 1 ;
+    ] ;
+
+    sh:property [
+        sh:path :statutaireZetel ;
+        sh:name "Statutory Seat (Statutaire Zetel)" ;
+        sh:description "Official registered seat" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 2 ;
+    ] ;
+
+    sh:property [
+        sh:path :bezoekadres ;
+        sh:name "Visiting Address (Bezoekadres)" ;
+        sh:description "Physical visiting address" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:order 3 ;
+    ] ;
+
+    sh:property [
+        sh:path :rechtsvorm ;
+        sh:name "Legal Form (Rechtsvorm)" ;
+        sh:description "Type of legal entity" ;
+        sh:maxCount 1 ;
+        sh:in (
+            "Publiekrechtelijke Rechtspersoon"
+            "Besloten Vennootschap (BV)"
+            "Naamloze Vennootschap (NV)"
+            "Stichting"
+            "Vereniging"
+            "Coöperatie"
+            "Onderlinge Waarborgmaatschappij"
+            "Kerkgenootschap"
+        ) ;
+        sh:order 4 ;
+    ] .
