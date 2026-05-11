@@ -1,4 +1,0 @@
-Options -MultiViews
-RewriteEngine on
-
-RedirectMatch 302 ^/dutch-mortgage-ontology/(home|git|repo)/?$  https://github.com/italojsoliveira/dutch-mortgage-ontology
